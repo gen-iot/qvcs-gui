@@ -28,13 +28,16 @@ add_executable(cmake_qt
         main.cpp)
 
 
-target_include_directories(cmake_qt PUBLIC Qt5::Include ${CMAKE_SOURCE_DIR})
+target_include_directories(cmake_qt PUBLIC
+        Qt5::Include
+        ${CMAKE_SOURCE_DIR}
+        ${CURL_INCLUDE_DIRS})
 
 target_link_libraries(cmake_qt
         Qt5::Core
         Qt5::Gui
         Qt5::Widgets
-        CURL::libcurl)
+        ${CURL_LIBRARIES})
 
 #foreach(plugin ${Qt5Widgets_LIBRARIES})
 #    get_target_property(_loc ${plugin} LOCATION)
