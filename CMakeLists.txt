@@ -7,13 +7,11 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-
-LIST(APPEND CMAKE_PREFIX_PATH "/home/suzhen/Qt5.13.0/5.13.0/gcc_64")
+list(APPEND CMAKE_PREFIX_PATH "/home/suzhen/Qt5.13.0/5.13.0/gcc_64")
 
 find_package(Qt5 COMPONENTS Gui Core Widgets REQUIRED)
 
 find_package(CURL REQUIRED)
-
 
 add_executable(cmake_qt
         forms/main_window.ui
@@ -26,7 +24,6 @@ add_executable(cmake_qt
         net/http.h
         resource.qrc
         main.cpp)
-
 
 target_include_directories(cmake_qt PUBLIC
         Qt5::Include
