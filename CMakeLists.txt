@@ -14,14 +14,14 @@ find_package(Qt5 COMPONENTS Gui Core Widgets REQUIRED)
 find_package(CURL REQUIRED)
 
 add_executable(cmake_qt
-        forms/main_window.ui
-        forms/main_window.cpp
+        forms/repo_form.ui
+        forms/repos_form.cpp
         forms/new_repo_dialog.ui
         forms/new_repo_dialog.cpp
+        forms/versions_form.ui
+        forms/versions_form.cpp
         net/api.cpp
-        net/api.h
         net/http.cpp
-        net/http.h
         resource.qrc
         main.cpp)
 

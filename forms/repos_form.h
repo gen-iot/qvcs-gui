@@ -4,17 +4,18 @@
 #include <QMainWindow>
 
 namespace Ui {
-class main_view_controller;
+    class repos_view_controller;
 }
 
 namespace vcs::form {
-class main_window : public QMainWindow
+    class repos_form : public QMainWindow
 {
     Q_OBJECT
     
 public:
-    explicit main_window(QWidget *parent = nullptr);
-    ~main_window();
+        explicit repos_form(QWidget *parent = nullptr);
+
+        ~repos_form() override;
     
 private:
     void init_ui();
@@ -28,7 +29,7 @@ private:
    
     
 private:
-    Ui::main_view_controller *ui_;
+        Ui::repos_view_controller *vc_;
     QMenu* table_menu_;
     
 };

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>new_repo_dialog</class>
- <widget class="QDialog" name="new_repo_dialog">
+    <class>new_repo_view_controller</class>
+    <widget class="QDialog" name="new_repo_view_controller">
   <property name="geometry">
    <rect>
     <x>0</x>

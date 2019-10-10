@@ -5,7 +5,7 @@
 #include <functional>
 
 namespace Ui {
-class new_repo_dialog;
+    class new_repo_view_controller;
 }
 
 namespace vcs::form {
@@ -18,7 +18,8 @@ class new_repo_dialog : public QDialog
     
 public:
     explicit new_repo_dialog(QWidget *parent=nullptr);
-    ~new_repo_dialog();
+
+    ~new_repo_dialog() override;
     
     Q_SIGNALS:
     void new_repo(const QString& name , const QString& desc);
@@ -28,7 +29,7 @@ private:
     
     
 private:
-    Ui::new_repo_dialog *ui;
+    Ui::new_repo_view_controller *vc_;
 };
 }
 

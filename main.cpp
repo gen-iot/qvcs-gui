@@ -1,5 +1,5 @@
 #include <QApplication>
-#include "forms/main_window.h"
+#include "forms/repos_form.h"
 #include "net/http.h"
 
 using namespace vcs;
@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 {
     http::curl_global global{};
     QApplication app(argc, argv);
-    vcs::form::main_window window;
+    vcs::form::repos_form window;
     window.show();
     return app.exec();
 }

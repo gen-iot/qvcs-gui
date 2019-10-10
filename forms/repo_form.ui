@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>main_view_controller</class>
- <widget class="QMainWindow" name="main_view_controller">
+    <class>repos_view_controller</class>
+    <widget class="QMainWindow" name="repos_view_controller">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>777</width>
-    <height>558</height>
+       <width>738</width>
+       <height>459</height>
    </rect>
   </property>
   <property name="windowTitle">

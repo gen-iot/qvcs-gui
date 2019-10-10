@@ -1,5 +1,5 @@
-#include "main_window.h"
-#include "ui_main_window.h"
+#include "repos_form.h"
+#include "ui_repo_form.h"
 #include "net/api.h"
 #include "net/http.h"
 #include <algorithm>
@@ -15,21 +15,19 @@ namespace vcs::form {
 
 static const QString kTimeFormat("yyyy-MM-dd HH:mm:ss");
 
-main_window::main_window(QWidget *parent) :
-    QMainWindow(parent),
-    ui_(new Ui::main_view_controller)
-{
-    ui_->setupUi(this);
+    repos_form::repos_form(QWidget *parent) :
+            QMainWindow(parent),
+            vc_(new Ui::repos_view_controller) {
+        vc_->setupUi(this);
     init_ui();
     load_repos();
 }
 
-main_window::~main_window()
-{
-    delete ui_;
-}
+    repos_form::~repos_form() {
+        delete vc_;
+    }
 
-void main_window::init_ui()
+    void repos_form::init_ui()
 {
     this->setWindowTitle("Repo list");
     ui_setup_context_menu();
@@ -37,56 +35,60 @@ void main_window::init_ui()
     ui_setup_table();
 }
 
-void main_window::ui_setup_toolbar()
+    void repos_form::ui_setup_toolbar()
 {
     //
     QAction *act_new = new QAction(QIcon(":/default/images/add_32px.ico"),"New",this);
-    QObject::connect(act_new,&QAction::triggered,this,&main_window::new_repo);
+    QObject::connect(act_new, &QAction::triggered, this, &repos_form::new_repo);
     //
     QAction* act_reload = new QAction(QIcon(":/default/images/reload_32px.ico"),"Reload", this);
-    QObject::connect(act_reload,&QAction::triggered,this,&main_window::load_repos);
+    QObject::connect(act_reload, &QAction::triggered, this, &repos_form::load_repos);
     //
-    ui_->tool_bar->addActions({act_new,act_reload});
+    vc_->tool_bar->addActions({act_new, act_reload});
     //
     // disbale toolbar context menu
-    ui_->tool_bar->setContextMenuPolicy(Qt::PreventContextMenu);
+    vc_->tool_bar->setContextMenuPolicy(Qt::PreventContextMenu);
 }
 
-void main_window::ui_setup_table()
+    void repos_form::ui_setup_table()
 {
     QStringList ls={"Name","Desc","CreateAt"};
     //    
-    ui_->table_repos->setColumnCount(ls.size());
-    ui_->table_repos->setHorizontalHeaderLabels(ls);
-    ui_->table_repos->horizontalHeader()->setSectionResizeMode(0,QHeaderView::ResizeMode::ResizeToContents);    
-    ui_->table_repos->horizontalHeader()->setSectionResizeMode(1,QHeaderView::ResizeMode::Stretch);    
-    ui_->table_repos->horizontalHeader()->setSectionResizeMode(2,QHeaderView::ResizeMode::ResizeToContents);    
-    ui_->table_repos->setSelectionBehavior(QTableView::SelectionBehavior::SelectRows);
+    vc_->table_repos->setColumnCount(ls.size());
+    vc_->table_repos->setHorizontalHeaderLabels(ls);
+    vc_->table_repos->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::ResizeToContents);
+    vc_->table_repos->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::Stretch);
+    vc_->table_repos->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeMode::ResizeToContents);
+    vc_->table_repos->setSelectionBehavior(QTableView::SelectionBehavior::SelectRows);
     //
-    ui_->table_repos->setShowGrid(true);
-    ui_->table_repos->setEditTriggers(QTableWidget::NoEditTriggers);
-    ui_->table_repos->setContextMenuPolicy(Qt::CustomContextMenu);
+    vc_->table_repos->setShowGrid(true);
+    vc_->table_repos->setEditTriggers(QTableWidget::NoEditTriggers);
+    vc_->table_repos->setContextMenuPolicy(Qt::CustomContextMenu);
     //
-    QObject::connect(ui_->table_repos,
+    QObject::connect(vc_->table_repos,
                      &QTableWidget::customContextMenuRequested,
                      [this](const QPoint& table_pos){
         QPoint cur_pos = QCursor::pos();
-        int row_idx = ui_->table_repos->rowAt(table_pos.y());  
+                         int row_idx = vc_->table_repos->rowAt(table_pos.y());
         if (row_idx!=-1){
             table_menu_->exec(cur_pos);
         }
     });
+    QObject::connect(vc_->table_repos, &QTableWidget::itemDoubleClicked,
+                     [this](QTableWidgetItem *item) {
+                         qDebug() << "row double-clicked:" << item->row();
+                     });
 }
 
-void main_window::ui_setup_context_menu()
+    void repos_form::ui_setup_context_menu()
 {
     table_menu_ = new QMenu(this);
     QAction* act_del_repo = new QAction("Delete",table_menu_);
-    QObject::connect(act_del_repo,&QAction::triggered,this, &main_window::del_selected_repo);
+    QObject::connect(act_del_repo, &QAction::triggered, this, &repos_form::del_selected_repo);
     table_menu_->addAction(act_del_repo);
 }
 
-void main_window::new_repo()
+    void repos_form::new_repo()
 {
     new_repo_dialog dig(this);
     QObject ::connect(&dig,&new_repo_dialog::new_repo,
@@ -105,29 +107,28 @@ void main_window::new_repo()
     
 }
 
-void main_window::load_repos()
+    void repos_form::load_repos()
 {   
     QList<api::repo> repos{};
     int err = api::repo_list(&repos);
     if(err){
         return;       
     }
-    ui_->table_repos->clearContents();
-    ui_->table_repos->setRowCount(repos.size());
+    vc_->table_repos->clearContents();
+    vc_->table_repos->setRowCount(repos.size());
     for(int i =0;i<repos.size();++i){
         const api::repo& repo = repos[i];
-        ui_->table_repos->setItem(i,0,new QTableWidgetItem(repo.name));
-        ui_->table_repos->setItem(i,1,new QTableWidgetItem(repo.desc));
-        ui_->table_repos->setItem(i,2,new QTableWidgetItem(repo.createAt.toString(kTimeFormat)));
+        vc_->table_repos->setItem(i, 0, new QTableWidgetItem(repo.name));
+        vc_->table_repos->setItem(i, 1, new QTableWidgetItem(repo.desc));
+        vc_->table_repos->setItem(i, 2, new QTableWidgetItem(repo.createAt.toString(kTimeFormat)));
     }
 }
 
-void main_window::del_selected_repo()
-{
-    QModelIndexList rows = ui_->table_repos->selectionModel()->selectedRows();
+    void repos_form::del_selected_repo() {
+        QModelIndexList rows = vc_->table_repos->selectionModel()->selectedRows();
     QStringList del_repos;
     std::transform(rows.cbegin(),rows.cend(),std::back_inserter(del_repos),[this](const QModelIndex& idx){
-       QTableWidgetItem* item=  ui_->table_repos->item(idx.row(),0);
+        QTableWidgetItem *item = vc_->table_repos->item(idx.row(), 0);
        return item->text();
     });
     QMessageBox box(QMessageBox::Icon::Question,

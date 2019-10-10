@@ -17,8 +17,9 @@ namespace api{
     if(c!=ce){\
     return kBadStatusCode;\
 }\
-    
-#define kBaseUrl u8"http://8eff7d1f.gen-iot.com:12136/api/v1"
+
+//#define kBaseUrl u8"http://8eff7d1f.gen-iot.com:12136/api/v1"
+#define kBaseUrl u8"http://192.168.20.49:12136/api/v1"
 #define kBadStatusCode (-5000)
 #define kJSONParseErr (-5001)
 
@@ -32,7 +33,7 @@ int repo_list(QList<repo> *repos)
     if (!repos){
         return 0;
     }
-    QJsonParseError parse_err;
+    QJsonParseError parse_err{};
     const auto doc = QJsonDocument::fromJson(output,&parse_err);
     if(parse_err.error!=QJsonParseError::NoError){
         return kJSONParseErr;
