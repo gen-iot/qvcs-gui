@@ -16,10 +16,7 @@ namespace vcs::api {
     return kBadStatusCode;\
 }\
 
-//#define kBaseUrl u8"http://8eff7d1f.gen-iot.com:12136/api/v1"
-#define kBaseUrl u8"http://192.168.20.49:12136/api/v1"
-#define kBadStatusCode (-5000)
-#define kJSONParseErr (-5001)
+
 
     int repo_list(QList<repo> *repos) {
         const QString url = QString("%1/%2").arg(kBaseUrl).arg(u8"repositories");

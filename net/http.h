@@ -13,6 +13,16 @@ namespace vcs::http {
 
     using status_code_t = long;
 
+    struct form_part {
+        enum types {
+            file,
+            string
+        };
+        types type;
+        QByteArray key; // allow empty
+        QByteArray value;
+    };
+
     struct curl_global final {
         curl_global() noexcept;
 
@@ -22,9 +32,13 @@ namespace vcs::http {
     struct curl_raii final {
 
     public:
+        ~curl_raii() noexcept;
+
         explicit curl_raii(int timeout_seconds = 5) noexcept;
 
-        ~curl_raii() noexcept;
+        curl_raii(const curl_raii &) = delete;
+
+        curl_raii &operator=(const curl_raii &) = delete;
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "google-explicit-constructor"
@@ -35,17 +49,20 @@ namespace vcs::http {
 
 #pragma clang diagnostic pop
 
+        void set_mimes(const QList<form_part> &parts) noexcept;
+
         void add_header(const QByteArray &header) noexcept;
 
         void add_header(const QList<QByteArray> &header) noexcept;
 
         void set_timeout(int seconds) noexcept;
 
-        int perform(const QByteArray &url, status_code_t *code = nullptr) noexcept;
+        int perform(const QByteArray &url, status_code_t *code = nullptr, QByteArray *input_body = nullptr) noexcept;
 
     private:
         CURL *handle_;
         curl_slist *headers_;
+        curl_mime *mimes_;
     };
 
 
@@ -66,19 +83,9 @@ namespace vcs::http {
              QList<QByteArray> const &headers = {});
 
 
-    struct form_item {
-        enum types {
-            file,
-            string
-        };
-        types type;
-        QByteArray key; // allow empty
-        QByteArray value;
-    };
-
     int post_form(const QByteArray &url,
                   status_code_t *status_code,
-                  const QList<form_item> &mimes,
+                  const QList<form_part> &mimes,
                   QByteArray *input_body = nullptr,
                   QList<QByteArray> const &headers = {}
     );

@@ -13,6 +13,10 @@ find_package(Qt5 COMPONENTS Gui Core Widgets REQUIRED)
 
 find_package(CURL REQUIRED)
 
+if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    add_definitions(-DCURL_VERBOSE)
+endif ()
+
 add_executable(cmake_qt
         forms/repo_form.ui
         forms/repos_form.cpp
@@ -20,11 +24,13 @@ add_executable(cmake_qt
         forms/repo_new_dialog.cpp
         forms/versions_form.ui
         forms/versions_form.cpp
+        forms/versions_new_dialog.cpp
         forms/utils.cpp
         net/api.cpp
         net/http.cpp
+        net/uploader.cpp
         resource.qrc
-        main.cpp forms/versions_new_dialog.cpp forms/versions_new_dialog.h)
+        main.cpp)
 
 target_include_directories(cmake_qt PUBLIC
         Qt5::Include
@@ -36,6 +42,7 @@ target_link_libraries(cmake_qt
         Qt5::Gui
         Qt5::Widgets
         ${CURL_LIBRARIES})
+
 
 #foreach(plugin ${Qt5Widgets_LIBRARIES})
 #    get_target_property(_loc ${plugin} LOCATION)

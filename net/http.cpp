@@ -1,7 +1,11 @@
 #include "http.h"
 #include <cstdio>
+#include <QDebug>
 
 namespace vcs::http {
+
+    size_t dump_response(const char *data, size_t size,
+                         size_t n, void *user_data);
 
     curl_global::curl_global() noexcept {
         curl_global_init(CURL_GLOBAL_DEFAULT);
@@ -13,15 +17,20 @@ namespace vcs::http {
 
     curl_raii::curl_raii(int timeout_seconds) noexcept :
             handle_(curl_easy_init()),
-            headers_(nullptr) {
+            headers_(nullptr),
+            mimes_(nullptr) {
+#ifdef CURL_VERBOSE
+        curl_easy_setopt(handle_, CURLOPT_VERBOSE, 1L);
+#endif
         curl_easy_setopt(handle_, CURLOPT_ACCEPT_ENCODING, "");
         curl_easy_setopt(handle_, CURLOPT_NOPROGRESS, 1L);
         set_timeout(timeout_seconds);
     }
 
     curl_raii::~curl_raii() noexcept {
+        curl_slist_free_all(headers_);
+        curl_mime_free(mimes_);
         curl_easy_cleanup(handle_);
-        curl_slist_free_all(this->headers_);
     }
 
     void curl_raii::add_header(const QByteArray &header) noexcept {
@@ -40,13 +49,94 @@ namespace vcs::http {
         curl_easy_setopt(handle_, CURLOPT_TIMEOUT, seconds);
     }
 
-    int curl_raii::perform(const QByteArray &url, status_code_t *status_code) noexcept {
+    int curl_raii::perform(const QByteArray &url, status_code_t *status_code, QByteArray *input_body) noexcept {
         curl_easy_setopt(handle_, CURLOPT_URL, url.data());
+        curl_easy_setopt(handle_, CURLOPT_WRITEDATA, input_body);
+        curl_easy_setopt(handle_, CURLOPT_WRITEFUNCTION, dump_response);
         CURLcode code = curl_easy_perform(this->handle_);
         if (code == CURLE_OK && status_code != nullptr) {
-            curl_easy_getinfo(this->handle_, CURLINFO_RESPONSE_CODE, status_code);
+            curl_easy_getinfo(handle_, CURLINFO_RESPONSE_CODE, status_code);
         }
         return code;
+    }
+
+    void curl_raii::set_mimes(const QList<form_part> &parts) noexcept {
+        if (mimes_) {
+            curl_mime_free(mimes_);
+            curl_easy_setopt(handle_, CURLOPT_MIMEPOST, nullptr);
+            mimes_ = nullptr;
+        }
+        if (parts.empty()) {
+            return;
+        }
+        mimes_ = curl_mime_init(handle_);
+        std::for_each(parts.cbegin(), parts.cend(), [this](const form_part &it) {
+            curl_mimepart *part = nullptr;
+            switch (it.type) {
+                case form_part::file: {
+                    part = curl_mime_addpart(mimes_);
+                    // file part
+                    curl_mime_filedata(part, it.value.data());
+                }
+                    break;
+                case form_part::string: {
+                    part = curl_mime_addpart(mimes_);
+                    curl_mime_data(part, it.value.data(), CURL_ZERO_TERMINATED);
+                }
+                    break;
+            }
+            if (part && !it.key.isEmpty()) {
+                curl_mime_name(part, it.key.data());
+            }
+        });
+        //
+        curl_easy_setopt(handle_, CURLOPT_MIMEPOST, mimes_);
+    }
+
+    int get(const QByteArray &url,
+            status_code_t *status_code,
+            QByteArray *input_body,
+            QList<QByteArray> const &headers) {
+        curl_raii handle;
+        handle.add_header(headers);
+        return handle.perform(url, status_code, input_body);
+    }
+
+    int post(const QByteArray &url,
+             status_code_t *status_code,
+             QByteArray *output_body,
+             QByteArray *input_body,
+             QList<QByteArray> const &headers) {
+        curl_raii handle;
+        handle.add_header(headers);
+        if (output_body) {
+            curl_easy_setopt(handle, CURLOPT_POSTFIELDS, output_body->data());
+        } else {
+            curl_easy_setopt(handle, CURLOPT_POST, 1L);
+            curl_easy_setopt(handle, CURLOPT_POSTFIELDSIZE, 0L);
+        }
+        return handle.perform(url, status_code, input_body);
+    }
+
+    int del(const QByteArray &url,
+            status_code_t *status_code,
+            QByteArray *input_body,
+            const QList<QByteArray> &headers) {
+        curl_raii handle;
+        handle.add_header(headers);
+        curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, "DELETE");
+        return handle.perform(url, status_code, input_body);
+    }
+
+    int post_form(const QByteArray &url,
+                  status_code_t *status_code,
+                  const QList<form_part> &mimes,
+                  QByteArray *input_body,
+                  const QList<QByteArray> &headers) {
+        curl_raii handle;
+        handle.add_header(headers);
+        handle.set_mimes(mimes);
+        return handle.perform(url, status_code, input_body);
     }
 
     size_t dump_response(const char *data, size_t size,
@@ -59,87 +149,6 @@ namespace vcs::http {
         sb->append(data, int(total_len));
         return total_len;
     }
-
-    int get(const QByteArray &url,
-            status_code_t *status_code,
-            QByteArray *input_body,
-            QList<QByteArray> const &headers) {
-        curl_raii handle;
-        handle.add_header(headers);
-        curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, dump_response);
-        curl_easy_setopt(handle, CURLOPT_WRITEDATA, input_body);
-        return handle.perform(url, status_code);
-    }
-
-    int post(const QByteArray &url,
-             status_code_t *status_code,
-             QByteArray *output_body,
-             QByteArray *input_body,
-             QList<QByteArray> const &headers) {
-        curl_raii handle;
-        handle.add_header(headers);
-
-        curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, dump_response);
-        curl_easy_setopt(handle, CURLOPT_WRITEDATA, input_body);
-
-        if (output_body) {
-            curl_easy_setopt(handle, CURLOPT_POSTFIELDS, output_body->data());
-        } else {
-            curl_easy_setopt(handle, CURLOPT_POST, 1L);
-            curl_easy_setopt(handle, CURLOPT_POSTFIELDSIZE, 0L);
-        }
-        return handle.perform(url, status_code);
-    }
-
-    int del(const QByteArray &url,
-            status_code_t *status_code,
-            QByteArray *input_body,
-            const QList<QByteArray> &headers) {
-        curl_raii handle;
-        handle.add_header(headers);
-        curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, "DELETE");
-        curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, dump_response);
-        curl_easy_setopt(handle, CURLOPT_WRITEDATA, input_body);
-        return handle.perform(url, status_code);
-    }
-
-    int post_form(const QByteArray &url,
-                  status_code_t *status_code,
-                  const QList<form_item> &mimes,
-                  QByteArray *input_body,
-                  const QList<QByteArray> &headers) {
-        curl_raii handle;
-        handle.add_header(headers);
-        curl_mime *c_mime = curl_mime_init(handle);
-        std::for_each(mimes.cbegin(), mimes.cend(), [c_mime](const form_item &it) {
-            curl_mimepart *part = nullptr;
-            switch (it.type) {
-                case form_item::file: {
-                    part = curl_mime_addpart(c_mime);
-                    // file part
-                    curl_mime_filedata(part, it.value.data());
-                }
-                    break;
-                case form_item::string: {
-                    part = curl_mime_addpart(c_mime);
-                    curl_mime_data(part, it.value.data(), it.value.size());
-                }
-                    break;
-            }
-            if (part && !it.key.isEmpty()) {
-                curl_mime_name(part, it.key.data());
-            }
-        });
-        //
-        curl_easy_setopt(handle, CURLOPT_MIMEPOST, c_mime);
-        curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, dump_response);
-        curl_easy_setopt(handle, CURLOPT_WRITEDATA, input_body);
-        int err = handle.perform(url, status_code);
-        //
-        curl_mime_free(c_mime);
-        return err;
-    }
-
 }
 
 

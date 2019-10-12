@@ -7,7 +7,10 @@
 
 namespace vcs::api {
 
-    static const QString kTimeFormat{"yyyy-MM-dd HH:mm:ss"};
+    static constexpr char kTimeFormat[]{"yyyy-MM-dd HH:mm:ss"};
+    static constexpr char kBaseUrl[]{"http://192.168.20.49:12136/api/v1"};
+    static constexpr int kBadStatusCode{-5000};
+    static constexpr int kJSONParseErr{-5001};
 
     struct repo {
         QString name;
