@@ -130,10 +130,12 @@ namespace vcs::http {
 
     int patch(const QByteArray &url,
               status_code_t *status_code,
+              const QByteArray &output_body,
               QByteArray *input_body,
               const QList<QByteArray> &headers) {
         curl_raii handle;
         handle.add_header(headers);
+        curl_easy_setopt(handle, CURLOPT_POSTFIELDS, output_body.data());
         curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, "PATCH");
         return handle.perform(url, status_code, input_body);
     }

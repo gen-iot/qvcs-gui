@@ -78,6 +78,7 @@ namespace vcs::http {
 
     int patch(const QByteArray &url,
               status_code_t *status_code,
+              const QByteArray &output_body,
               QByteArray *input_body = nullptr,
               QList<QByteArray> const &headers = {});
 
