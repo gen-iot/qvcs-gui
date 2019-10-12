@@ -207,7 +207,7 @@ namespace vcs::form {
             if (!vc_->table_versions->item(row_idx, 2)->text().isEmpty()) {
                 QMessageBox::critical(this, "Error",
                                       QString("abort: %1 is HEAD").arg(ver_name));
-                break;
+                return;
             }
             ver_will_delete.append(ver_name);
         }

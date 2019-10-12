@@ -107,7 +107,7 @@ namespace vcs::api {
     }
 
     int version_delete(const QString &repo_name, const QString &ver_name) {
-        const QString url = QString("%1/repositories/versions/%2/%3")
+        const QString url = QString("%1/versions/%2/%3")
                 .arg(kBaseUrl)
                 .arg(repo_name)
                 .arg(ver_name);
@@ -123,7 +123,7 @@ namespace vcs::api {
                 .arg(repo_name)
                 .arg(ver_name);
         http::status_code_t code{0};
-        int err = http::patch(url.toUtf8(), &code);
+        int err = http::patch(url.toUtf8(), &code, "{}");
         errOrStatus(err, code, 200);
         return 0;
     }
