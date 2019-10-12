@@ -17,7 +17,7 @@ namespace vcs::form {
         ~repos_form() override;
 
     private:
-        void init_ui();
+        void ui_init();
 
         void ui_setup_toolbar();
 

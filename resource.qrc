@@ -2,5 +2,6 @@
     <qresource prefix="/default">
         <file>images/reload_32px.ico</file>
         <file>images/add_32px.ico</file>
+        <file>images/upload_32px.ico</file>
     </qresource>
 </RCC>

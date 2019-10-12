@@ -16,14 +16,15 @@ find_package(CURL REQUIRED)
 add_executable(cmake_qt
         forms/repo_form.ui
         forms/repos_form.cpp
-        forms/new_repo_dialog.ui
-        forms/new_repo_dialog.cpp
+        forms/repo_new_dialog.ui
+        forms/repo_new_dialog.cpp
         forms/versions_form.ui
         forms/versions_form.cpp
+        forms/utils.cpp
         net/api.cpp
         net/http.cpp
         resource.qrc
-        main.cpp)
+        main.cpp forms/versions_new_dialog.cpp forms/versions_new_dialog.h)
 
 target_include_directories(cmake_qt PUBLIC
         Qt5::Include

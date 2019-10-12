@@ -9,6 +9,8 @@
 
 namespace vcs::http {
 
+    constexpr static int kErrFileNotExist = 1099;
+
     using status_code_t = long;
 
     struct curl_global final {
@@ -24,9 +26,14 @@ namespace vcs::http {
 
         ~curl_raii() noexcept;
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "google-explicit-constructor"
+
         inline operator CURL *() noexcept {
             return handle_;
         }
+
+#pragma clang diagnostic pop
 
         void add_header(const QByteArray &header) noexcept;
 
@@ -57,6 +64,24 @@ namespace vcs::http {
              QByteArray *output_body,
              QByteArray *input_body = nullptr,
              QList<QByteArray> const &headers = {});
+
+
+    struct form_item {
+        enum types {
+            file,
+            string
+        };
+        types type;
+        QByteArray key; // allow empty
+        QByteArray value;
+    };
+
+    int post_form(const QByteArray &url,
+                  status_code_t *status_code,
+                  const QList<form_item> &mimes,
+                  QByteArray *input_body = nullptr,
+                  QList<QByteArray> const &headers = {}
+    );
 
 }
 

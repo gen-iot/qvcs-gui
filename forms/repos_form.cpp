@@ -1,26 +1,25 @@
 #include "repos_form.h"
 #include "ui_repo_form.h"
 #include "net/api.h"
-#include "net/http.h"
 #include <algorithm>
 #include <QAction>
 #include <QIcon>
-#include "new_repo_dialog.h"
+#include "repo_new_dialog.h"
 #include <QDebug>
 #include <QMessageBox>
 #include <QMenu>
 #include <QAbstractButton>
+#include "versions_form.h"
+#include "utils.h"
 
 namespace vcs::form {
-
-    static const QString kTimeFormat("yyyy-MM-dd HH:mm:ss");
 
     repos_form::repos_form(QWidget *parent) :
             QMainWindow(parent),
             vc_(new Ui::repos_view_controller),
             table_menu_(new QMenu(this)) {
         vc_->setupUi(this);
-        init_ui();
+        ui_init();
         load_repos();
     }
 
@@ -28,7 +27,8 @@ namespace vcs::form {
         delete vc_;
     }
 
-    void repos_form::init_ui() {
+    void repos_form::ui_init() {
+        utils::window_center_screen(this->window());
         this->setWindowTitle("Repo list");
         ui_setup_context_menu();
         ui_setup_toolbar();
@@ -47,16 +47,20 @@ namespace vcs::form {
         //
         // disbale toolbar context menu
         vc_->tool_bar->setContextMenuPolicy(Qt::PreventContextMenu);
+        // show text under ico
+        vc_->tool_bar->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextUnderIcon);
     }
 
     void repos_form::ui_setup_table() {
-        QStringList ls = {"Name", "Desc", "CreateAt"};
         //
+        QStringList ls = {"Name", "Desc", "CreateAt"};
         vc_->table_repos->setColumnCount(ls.size());
         vc_->table_repos->setHorizontalHeaderLabels(ls);
-        vc_->table_repos->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::ResizeToContents);
-        vc_->table_repos->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::Stretch);
-        vc_->table_repos->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeMode::ResizeToContents);
+        //
+        QHeaderView *hor_headers = vc_->table_repos->horizontalHeader();
+        hor_headers->setSectionResizeMode(0, QHeaderView::ResizeMode::ResizeToContents);
+        hor_headers->setSectionResizeMode(1, QHeaderView::ResizeMode::Stretch);
+        hor_headers->setSectionResizeMode(2, QHeaderView::ResizeMode::ResizeToContents);
         vc_->table_repos->setSelectionBehavior(QTableView::SelectionBehavior::SelectRows);
         //
         vc_->table_repos->setShowGrid(true);
@@ -76,7 +80,8 @@ namespace vcs::form {
                          [this](QTableWidgetItem *item) {
                              QString repo_name = vc_->table_repos->item(item->row(), 0)->text();
                              qDebug() << "row double-clicked:" << item->row() << "repo name=" << repo_name;
-
+                             versions_form *form = new versions_form(repo_name, this);
+                             form->show();
                          });
     }
 
@@ -87,8 +92,8 @@ namespace vcs::form {
     }
 
     void repos_form::new_repo() {
-        new_repo_dialog dig(this);
-        QObject::connect(&dig, &new_repo_dialog::new_repo,
+        repo_new_dialog dig(this);
+        QObject::connect(&dig, &repo_new_dialog::new_repo,
                          [this](const QString &name, const QString &desc) {
                              int err = api::repo_create(name, desc);
                              if (err) {
@@ -116,7 +121,7 @@ namespace vcs::form {
             const api::repo &repo = repos[i];
             vc_->table_repos->setItem(i, 0, new QTableWidgetItem(repo.name));
             vc_->table_repos->setItem(i, 1, new QTableWidgetItem(repo.desc));
-            vc_->table_repos->setItem(i, 2, new QTableWidgetItem(repo.createAt.toString(kTimeFormat)));
+            vc_->table_repos->setItem(i, 2, new QTableWidgetItem(repo.createAt.toString(api::kTimeFormat)));
         }
     }
 

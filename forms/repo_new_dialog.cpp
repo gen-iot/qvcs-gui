@@ -1,24 +1,24 @@
-#include "new_repo_dialog.h"
-#include "ui_new_repo_dialog.h"
+#include "repo_new_dialog.h"
+#include "ui_repo_new_dialog.h"
 #include <QDialogButtonBox>
 #include <QMessageBox>
 #include "repos_form.h"
 
 namespace vcs::form {
 
-    new_repo_dialog::new_repo_dialog(QWidget *parent) :
+    repo_new_dialog::repo_new_dialog(QWidget *parent) :
             QDialog(parent),
-            vc_(new Ui::new_repo_view_controller) {
+            vc_(new Ui::repo_new_view_controller) {
         vc_->setupUi(this);
-        init();
+        ui_init();
     }
 
-    new_repo_dialog::~new_repo_dialog() {
+    repo_new_dialog::~repo_new_dialog() {
         delete vc_;
     }
 
-    void new_repo_dialog::init() {
-        this->setWindowTitle("new repo");
+    void repo_new_dialog::ui_init() {
+        this->setWindowTitle("Create New Repo");
         this->layout()->setSizeConstraint(QLayout::SetFixedSize);
         QObject::connect(vc_->btn_box,
                          &QDialogButtonBox::accepted,
@@ -40,7 +40,7 @@ namespace vcs::form {
 
         QObject::connect(vc_->btn_box,
                          &QDialogButtonBox::rejected,
-                         this, &new_repo_dialog::close);
+                         this, &repo_new_dialog::close);
     }
 
 

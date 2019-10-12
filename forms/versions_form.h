@@ -6,18 +6,35 @@ namespace Ui {
     class versions_view_controller;
 }
 
-namespace vcs::forms {
+namespace vcs::form {
 
     class versions_form : public QMainWindow {
     Q_OBJECT
 
     public:
-        explicit versions_form(QWidget *parent = nullptr);
+        explicit versions_form(const QString &repo_name, QWidget *parent = nullptr);
 
         ~versions_form() override;
 
+    private:
+        void ui_init();
+
+        void ui_setup_table();
+
+        void ui_setup_toolbar();
+
+        void load_versions();
+
+        void show_create_version();
+
+        void version_created(const QString &ver_code,
+                             const QString &ver_file_loc,
+                             const QString &ver_desc,
+                             bool isHead);
+
     private :
         Ui::versions_view_controller *vc_;
+        QString repo_name_;
 
     };
 

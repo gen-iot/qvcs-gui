@@ -1,4 +1,5 @@
 #include "http.h"
+#include <cstdio>
 
 namespace vcs::http {
 
@@ -100,6 +101,43 @@ namespace vcs::http {
         curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, dump_response);
         curl_easy_setopt(handle, CURLOPT_WRITEDATA, input_body);
         return handle.perform(url, status_code);
+    }
+
+    int post_form(const QByteArray &url,
+                  status_code_t *status_code,
+                  const QList<form_item> &mimes,
+                  QByteArray *input_body,
+                  const QList<QByteArray> &headers) {
+        curl_raii handle;
+        handle.add_header(headers);
+        curl_mime *c_mime = curl_mime_init(handle);
+        std::for_each(mimes.cbegin(), mimes.cend(), [c_mime](const form_item &it) {
+            curl_mimepart *part = nullptr;
+            switch (it.type) {
+                case form_item::file: {
+                    part = curl_mime_addpart(c_mime);
+                    // file part
+                    curl_mime_filedata(part, it.value.data());
+                }
+                    break;
+                case form_item::string: {
+                    part = curl_mime_addpart(c_mime);
+                    curl_mime_data(part, it.value.data(), it.value.size());
+                }
+                    break;
+            }
+            if (part && !it.key.isEmpty()) {
+                curl_mime_name(part, it.key.data());
+            }
+        });
+        //
+        curl_easy_setopt(handle, CURLOPT_MIMEPOST, c_mime);
+        curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, dump_response);
+        curl_easy_setopt(handle, CURLOPT_WRITEDATA, input_body);
+        int err = handle.perform(url, status_code);
+        //
+        curl_mime_free(c_mime);
+        return err;
     }
 
 }
