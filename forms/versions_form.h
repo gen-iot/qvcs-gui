@@ -2,6 +2,7 @@
 
 #include <QMainWindow>
 #include "net/http.h"
+#include <QMenu>
 
 namespace Ui {
     class versions_view_controller;
@@ -24,6 +25,8 @@ namespace vcs::form {
 
         void ui_setup_toolbar();
 
+        void ui_setup_ctx_menu();
+
         void load_versions();
 
         void show_create_version();
@@ -35,9 +38,14 @@ namespace vcs::form {
 
         void version_create_result(int err, http::status_code_t status_code, const QByteArray &server_response);
 
+        void delete_selected_versions();
+
+        void set_selected_head();
+
     private :
         Ui::versions_view_controller *vc_;
         QString repo_name_;
+        QMenu *table_ctx_menu_;
 
     };
 

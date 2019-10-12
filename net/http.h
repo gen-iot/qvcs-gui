@@ -76,6 +76,11 @@ namespace vcs::http {
             QByteArray *input_body = nullptr,
             QList<QByteArray> const &headers = {});
 
+    int patch(const QByteArray &url,
+              status_code_t *status_code,
+              QByteArray *input_body = nullptr,
+              QList<QByteArray> const &headers = {});
+
     int post(const QByteArray &url,
              status_code_t *status_code,
              QByteArray *output_body,

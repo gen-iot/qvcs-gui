@@ -93,11 +93,9 @@ namespace vcs::api {
     }
 
     int repo_drop(const QString &repo_name) {
-        const QString url = QString("%1/%2/%3")
+        const QString url = QString("%1/repositories/%2")
                 .arg(kBaseUrl)
-                .arg("repositories")
                 .arg(repo_name);
-
         http::status_code_t code{0};
         int err = http::del(url.toUtf8(), &code);
         errOrStatus(err, code, 200);
@@ -108,10 +106,25 @@ namespace vcs::api {
         return 0;
     }
 
-    int version_upload(const QString &repo_name,
-                       const QString &file_path,
-                       const QString &version,
-                       const QString &desc) {
+    int version_delete(const QString &repo_name, const QString &ver_name) {
+        const QString url = QString("%1/repositories/versions/%2/%3")
+                .arg(kBaseUrl)
+                .arg(repo_name)
+                .arg(ver_name);
+        http::status_code_t code{0};
+        int err = http::del(url.toUtf8(), &code);
+        errOrStatus(err, code, 200);
+        return 0;
+    }
+
+    int version_head(const QString &repo_name, const QString &ver_name) {
+        const QString url = QString("%1/versions/HEAD/%2/%3")
+                .arg(kBaseUrl)
+                .arg(repo_name)
+                .arg(ver_name);
+        http::status_code_t code{0};
+        int err = http::patch(url.toUtf8(), &code);
+        errOrStatus(err, code, 200);
         return 0;
     }
 }

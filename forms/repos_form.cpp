@@ -17,7 +17,7 @@ namespace vcs::form {
     repos_form::repos_form(QWidget *parent) :
             QMainWindow(parent),
             vc_(new Ui::repos_view_controller),
-            table_menu_(new QMenu(this)) {
+            table_ctx_menu_(new QMenu(this)) {
         vc_->setupUi(this);
         ui_init();
         load_repos();
@@ -28,9 +28,9 @@ namespace vcs::form {
     }
 
     void repos_form::ui_init() {
-        utils::window_center_screen(this->window());
+        utils::window_center_screen(this);
         this->setWindowTitle("Repo list");
-        ui_setup_context_menu();
+        ui_setup_ctx_menu();
         ui_setup_toolbar();
         ui_setup_table();
     }
@@ -73,7 +73,7 @@ namespace vcs::form {
                              QPoint cur_pos = QCursor::pos();
                              int row_idx = vc_->table_repos->rowAt(table_pos.y());
                              if (row_idx != -1) {
-                                 table_menu_->exec(cur_pos);
+                                 table_ctx_menu_->exec(cur_pos);
                              }
                          });
         QObject::connect(vc_->table_repos, &QTableWidget::itemDoubleClicked,
@@ -87,10 +87,10 @@ namespace vcs::form {
                          });
     }
 
-    void repos_form::ui_setup_context_menu() {
-        QAction *act_del_repo = new QAction("Delete", table_menu_);
+    void repos_form::ui_setup_ctx_menu() {
+        QAction *act_del_repo = new QAction("Delete");
         QObject::connect(act_del_repo, &QAction::triggered, this, &repos_form::del_selected_repo);
-        table_menu_->addAction(act_del_repo);
+        table_ctx_menu_->addAction(act_del_repo);
     }
 
     void repos_form::new_repo() {

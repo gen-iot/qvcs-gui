@@ -23,7 +23,7 @@ namespace vcs::form {
 
         void ui_setup_table();
 
-        void ui_setup_context_menu();
+        void ui_setup_ctx_menu();
 
         //
         void new_repo();
@@ -35,7 +35,7 @@ namespace vcs::form {
 
     private:
         Ui::repos_view_controller *vc_;
-        QMenu *table_menu_;
+        QMenu *table_ctx_menu_;
 
     };
 }

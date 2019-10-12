@@ -8,7 +8,7 @@
 namespace vcs::api {
 
     static constexpr char kTimeFormat[]{"yyyy-MM-dd HH:mm:ss"};
-    static constexpr char kBaseUrl[]{"http://192.168.20.49:12136/api/v1"};
+    static constexpr char kBaseUrl[]{kHttpBaseURL};
     static constexpr int kBadStatusCode{-5000};
     static constexpr int kJSONParseErr{-5001};
 
@@ -37,10 +37,10 @@ namespace vcs::api {
 
     int version_list(const QString &repo_name, QList<version> *versions);
 
-    int version_upload(const QString &repo_name,
-                       const QString &file_path,
-                       const QString &version,
-                       const QString &desc = "no desc");
+
+    int version_delete(const QString &repo_name, const QString &ver_name);
+
+    int version_head(const QString &repo_name, const QString &ver_name);
 
 }
 

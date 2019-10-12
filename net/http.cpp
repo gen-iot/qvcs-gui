@@ -128,6 +128,16 @@ namespace vcs::http {
         return handle.perform(url, status_code, input_body);
     }
 
+    int patch(const QByteArray &url,
+              status_code_t *status_code,
+              QByteArray *input_body,
+              const QList<QByteArray> &headers) {
+        curl_raii handle;
+        handle.add_header(headers);
+        curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, "PATCH");
+        return handle.perform(url, status_code, input_body);
+    }
+
     int post_form(const QByteArray &url,
                   status_code_t *status_code,
                   const QList<form_part> &mimes,
