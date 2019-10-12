@@ -13,14 +13,14 @@ find_package(Qt5 COMPONENTS Gui Core Widgets REQUIRED)
 
 find_package(CURL REQUIRED)
 
-option(CURL_VERBOSE "enable curl log" OFF)
+option(CURL_VERBOSE "enable curl log" ON)
+set(HTTP_BASEURL "\"http://192.168.20.49:12136/api/v1\"" CACHE STRING "http base url for request")
 
 if (CURL_VERBOSE)
     add_definitions(-DCURL_VERBOSE)
 endif ()
 
-
-add_definitions(-D${CMAKE_BUILD_TYPE})
+add_definitions(-D${CMAKE_BUILD_TYPE} -DkHttpBaseURL=${HTTP_BASEURL})
 
 add_executable(cmake_qt
         forms/repo_form.ui
