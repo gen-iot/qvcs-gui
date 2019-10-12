@@ -79,7 +79,9 @@ namespace vcs::form {
         QObject::connect(vc_->table_repos, &QTableWidget::itemDoubleClicked,
                          [this](QTableWidgetItem *item) {
                              QString repo_name = vc_->table_repos->item(item->row(), 0)->text();
+#ifdef Debug
                              qDebug() << "row double-clicked:" << item->row() << "repo name=" << repo_name;
+#endif
                              versions_form *form = new versions_form(repo_name, this);
                              form->show();
                          });

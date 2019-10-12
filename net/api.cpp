@@ -63,10 +63,10 @@ namespace vcs::api {
             version it{};
             QJsonObject jsob = arr_it.toObject();
             it.version = jsob.value("version").toString();
-            it.desc = jsob.value("desc").toString();
+            it.desc = jsob.value("description").toString();
             it.url = jsob.value("url").toString();
             it.md5 = jsob.value("md5").toString();
-            it.is_latest = jsob.value("is_latest").toBool();
+            it.is_latest = jsob.value("isLatest").toBool();
             int time_stamp = jsob.value("createdAt").toInt();
             it.createAt = QDateTime::fromTime_t(uint(time_stamp));
             return it;

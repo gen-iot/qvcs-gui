@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QMainWindow>
+#include "net/http.h"
 
 namespace Ui {
     class versions_view_controller;
@@ -31,6 +32,8 @@ namespace vcs::form {
                              const QString &ver_file_loc,
                              const QString &ver_desc,
                              bool isHead);
+
+        void version_create_result(int err, http::status_code_t status_code, const QByteArray &server_response);
 
     private :
         Ui::versions_view_controller *vc_;

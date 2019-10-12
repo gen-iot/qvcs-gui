@@ -2,14 +2,20 @@
 // Created by suzhen on 2019/10/10.
 //
 
+#include <curl/curl.h>
 #include <QFileDialog>
 #include <QStandardPaths>
 #include <QDebug>
+#include <QThread>
+#include <QMessageBox>
+#include <QProgressDialog>
 #include "versions_form.h"
 #include "ui_versions_form.h"
 #include "net/api.h"
 #include "utils.h"
 #include "versions_new_dialog.h"
+#include "net/uploader.h"
+#include "lite_progress_dialog.h"
 
 namespace vcs::form {
 
@@ -33,7 +39,9 @@ namespace vcs::form {
         QList<api::version> vers{};
         int err = api::version_list(this->repo_name_, &vers);
         if (err) {
+#ifdef Debug
             qDebug() << "list version failed, err=" << err;
+#endif
             return;
         }
         vc_->table_versions->clearContents();
@@ -42,7 +50,7 @@ namespace vcs::form {
             const api::version &it = vers[i];
             vc_->table_versions->setItem(i, 0, new QTableWidgetItem(it.version));
             vc_->table_versions->setItem(i, 1, new QTableWidgetItem(it.desc));
-            vc_->table_versions->setItem(i, 2, new QTableWidgetItem(it.is_latest));
+            vc_->table_versions->setItem(i, 2, new QTableWidgetItem(it.is_latest ? "HEAD" : ""));
             vc_->table_versions->setItem(i, 3, new QTableWidgetItem(it.createAt.toString(api::kTimeFormat)));
         }
     }
@@ -94,10 +102,77 @@ namespace vcs::form {
         dialog.exec();
     }
 
+
     void versions_form::version_created(const QString &ver_code,
                                         const QString &ver_file_loc,
                                         const QString &ver_desc,
                                         bool isHead) {
+        QString upload_url = QString("%1/versions/%2").arg(api::kBaseUrl).arg(repo_name_);
+        QList<http::form_part> parts{
+                {
+                        http::form_part::string,
+                        "version",
+                        ver_code.toUtf8()
+                },
+                {
+                        http::form_part::string,
+                        "description",
+                        ver_desc.toUtf8()
+                },
+                {
+                        http::form_part::file,
+                        "file",
+                        ver_file_loc.toUtf8()
+                },
+                {
+                        http::form_part::string,
+                        "isLatest",
+                        isHead ? "true" : "false"
+                }
+        };
+        QThread *thread = new QThread;
+        net::uploader *uploader = new net::uploader(nil, upload_url.toUtf8(), parts);
+        LiteQProgressDialog progressDialog(this);
+        uploader->moveToThread(thread);
+        //
+        QObject::connect(thread, &QThread::started, uploader, &net::uploader::start);
+        QObject::connect(uploader, &net::uploader::finished, thread, &QThread::quit);
+        QObject::connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+        QObject::connect(thread, &QThread::finished, uploader, &net::uploader::deleteLater);
+        QObject::connect(thread, &QThread::finished, &progressDialog, &LiteQProgressDialog::close);
+        //
+        progressDialog.setWindowTitle("Uploading...");
+        progressDialog.setCancelButton(nil);
+        QObject::connect(uploader, &net::uploader::on_progress,
+                         &progressDialog, &LiteQProgressDialog::on_progress);
+        QObject::connect(uploader, &net::uploader::on_result,
+                         this, &versions_form::version_create_result);
+        thread->start();
+        progressDialog.exec();
+    }
+
+    void versions_form::version_create_result(
+            int err,
+            http::status_code_t status_code,
+            const QByteArray &server_response) {
+        if (err) {
+            QMessageBox::critical(this, "Error",
+                                  QString("Send Request Failed:%1")
+                                          .arg(curl_easy_strerror(CURLcode(err))));
+            return;
+        }
+        if (status_code != 201) {
+            QMessageBox::critical(this, "Error",
+                                  QString("Version Create Failed, Bad Status Code:%1")
+                                          .arg(status_code));
+            return;
+        }
+#ifdef Debug
+        qDebug() << "upload on result"
+                 << "err" << curl_easy_strerror(CURLcode(err))
+                 << "status_code" << status_code
+                 << "response body:" << QString::fromUtf8(server_response);
+#endif
         load_versions();
     }
 

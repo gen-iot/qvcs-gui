@@ -12,6 +12,9 @@ namespace vcs::net {
                           curl_off_t,
                           curl_off_t ultotal,
                           curl_off_t ulnow) {
+        if (ultotal == 0) {
+            return 0;
+        }
         uploader *uploader = static_cast<class uploader *>(user_data);
         Q_ASSERT(uploader);
         uploader->on_progress(ultotal, ulnow);

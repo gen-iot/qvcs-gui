@@ -13,9 +13,14 @@ find_package(Qt5 COMPONENTS Gui Core Widgets REQUIRED)
 
 find_package(CURL REQUIRED)
 
-if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+option(CURL_VERBOSE "enable curl log" OFF)
+
+if (CURL_VERBOSE)
     add_definitions(-DCURL_VERBOSE)
 endif ()
+
+
+add_definitions(-D${CMAKE_BUILD_TYPE})
 
 add_executable(cmake_qt
         forms/repo_form.ui
@@ -30,7 +35,7 @@ add_executable(cmake_qt
         net/http.cpp
         net/uploader.cpp
         resource.qrc
-        main.cpp)
+        main.cpp forms/lite_progress_dialog.cpp forms/lite_progress_dialog.h)
 
 target_include_directories(cmake_qt PUBLIC
         Qt5::Include
