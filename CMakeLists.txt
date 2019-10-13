@@ -7,14 +7,16 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-list(APPEND CMAKE_PREFIX_PATH "/home/suzhen/Qt5.13.0/5.13.0/gcc_64")
+option(CURL_VERBOSE "enable curl log" ON)
+set(HTTP_BASEURL "\"http://192.168.20.49:12136/api/v1\"" CACHE STRING "http base url for request")
+set(QtHome "/opt/Qt5.13.1/5.13.1/gcc_6422" CACHE STRING "qt home dir")
+
+list(APPEND CMAKE_PREFIX_PATH ${QtHome})
 
 find_package(Qt5 COMPONENTS Gui Core Widgets REQUIRED)
 
 find_package(CURL REQUIRED)
 
-option(CURL_VERBOSE "enable curl log" ON)
-set(HTTP_BASEURL "\"http://192.168.20.49:12136/api/v1\"" CACHE STRING "http base url for request")
 
 if (CURL_VERBOSE)
     add_definitions(-DCURL_VERBOSE)
