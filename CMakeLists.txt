@@ -9,14 +9,13 @@ set(CMAKE_AUTOUIC ON)
 
 option(CURL_VERBOSE "enable curl log" ON)
 set(HTTP_BASEURL "\"http://192.168.20.49:12136/api/v1\"" CACHE STRING "http base url for request")
-set(QtHome "/opt/Qt5.13.1/5.13.1/gcc_6422" CACHE STRING "qt home dir")
+set(QtHome "/opt/Qt5.13.1/5.13.1/gcc_64" CACHE STRING "qt home dir")
 
 list(APPEND CMAKE_PREFIX_PATH ${QtHome})
 
 find_package(Qt5 COMPONENTS Gui Core Widgets REQUIRED)
 
 find_package(CURL REQUIRED)
-
 
 if (CURL_VERBOSE)
     add_definitions(-DCURL_VERBOSE)
@@ -25,11 +24,15 @@ endif ()
 add_definitions(-D${CMAKE_BUILD_TYPE} -DkHttpBaseURL=${HTTP_BASEURL})
 
 add_executable(cmake_qt
+        # ui
         forms/repo_form.ui
-        forms/repos_form.cpp
         forms/repo_new_dialog.ui
-        forms/repo_new_dialog.cpp
         forms/versions_form.ui
+        # res
+        resource.qrc
+        # src
+        forms/repos_form.cpp
+        forms/repo_new_dialog.cpp
         forms/versions_form.cpp
         forms/versions_new_dialog.cpp
         forms/utils.cpp
@@ -37,7 +40,6 @@ add_executable(cmake_qt
         net/api.cpp
         net/http.cpp
         net/uploader.cpp
-        resource.qrc
         main.cpp
         )
 
