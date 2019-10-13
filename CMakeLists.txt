@@ -33,11 +33,13 @@ add_executable(cmake_qt
         forms/versions_form.cpp
         forms/versions_new_dialog.cpp
         forms/utils.cpp
+        forms/lite_progress_dialog.cpp
         net/api.cpp
         net/http.cpp
         net/uploader.cpp
         resource.qrc
-        main.cpp forms/lite_progress_dialog.cpp forms/lite_progress_dialog.h)
+        main.cpp
+        )
 
 target_include_directories(cmake_qt PUBLIC
         Qt5::Include
