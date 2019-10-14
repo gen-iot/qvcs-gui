@@ -32,6 +32,7 @@ add_executable(qvcs-gui
         forms/repo_form.ui
         forms/repo_new_dialog.ui
         forms/versions_form.ui
+        forms/versions_new_dialog.ui
         # res
         resource.qrc
         # src
