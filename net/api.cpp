@@ -32,8 +32,8 @@ namespace vcs::api {
         if (parse_err.error != QJsonParseError::NoError) {
             return kJSONParseErr;
         }
-        const auto arr = doc.array();
-        std::transform(arr.cbegin(), arr.cend(), std::back_inserter(*repos),
+        QJsonArray arr = doc.array();
+        std::transform(arr.constBegin(), arr.constEnd(), std::back_inserter(*repos),
                        [](const QJsonValue &it) -> repo {
                            repo repo{};
                            QJsonObject obj = it.toObject();
@@ -59,18 +59,19 @@ namespace vcs::api {
         }
         //
         QJsonArray arr = doc.array();
-        std::transform(arr.cbegin(), arr.cend(), std::back_inserter(*versions), [](const QJsonValue &arr_it) {
-            version it{};
-            QJsonObject jsob = arr_it.toObject();
-            it.name = jsob.value("version").toString();
-            it.desc = jsob.value("description").toString();
-            it.url = jsob.value("url").toString();
-            it.md5 = jsob.value("md5").toString();
-            it.is_latest = jsob.value("isLatest").toBool();
-            int time_stamp = jsob.value("createdAt").toInt();
-            it.createAt = QDateTime::fromTime_t(uint(time_stamp));
-            return it;
-        });
+        std::transform(arr.constBegin(), arr.constEnd(), std::back_inserter(*versions),
+			[](const QJsonValue &arr_it) {
+				version it{};
+				QJsonObject jsob = arr_it.toObject();
+				it.name = jsob.value("version").toString();
+				it.desc = jsob.value("description").toString();
+				it.url = jsob.value("url").toString();
+				it.md5 = jsob.value("md5").toString();
+				it.is_latest = jsob.value("isLatest").toBool();
+				int time_stamp = jsob.value("createdAt").toInt();
+				it.createAt = QDateTime::fromTime_t(uint(time_stamp));
+				return it;
+		});
         return 0;
     }
 
