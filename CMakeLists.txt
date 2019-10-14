@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(cmake_qt)
+project(qvcs-gui)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -27,7 +27,7 @@ if (MSVC)
     set(CMAKE_CREATE_WIN32_EXE "/SUBSYSTEM:WINDOWS /ENTRY:\"mainCRTStartup\"")
 endif (MSVC)
 
-add_executable(cmake_qt
+add_executable(qvcs-gui
         # ui
         forms/repo_form.ui
         forms/repo_new_dialog.ui
@@ -47,12 +47,12 @@ add_executable(cmake_qt
         main.cpp
         )
 
-target_include_directories(cmake_qt PUBLIC
+target_include_directories(qvcs-gui PUBLIC
         Qt5::Include
         ${CMAKE_SOURCE_DIR}
         ${CURL_INCLUDE_DIRS})
 
-target_link_libraries(cmake_qt
+target_link_libraries(qvcs-gui
         Qt5::Core
         Qt5::Gui
         Qt5::Widgets
