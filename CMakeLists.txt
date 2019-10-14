@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.13)
 
-set(CMAKE_TOOLCHAIN_FILE C:/Users/Suzhen/GitHome/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake)
+set(CMAKE_TOOLCHAIN_FILE C:/Users/Suzhen/GitHome/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake CACHE FILEPATH "vcpkg chan file")
 
 project(qvcs-gui)
 
@@ -13,7 +13,7 @@ set(CMAKE_AUTOUIC ON)
 
 option(CURL_VERBOSE "enable curl log" ON)
 set(HTTP_BASEURL "\"http://192.168.20.49:12136/api/v1\"" CACHE STRING "http base url for request")
-set(QtHome "/opt/Qt5.13.1/5.13.1/gcc_64" CACHE STRING "qt home dir")
+set(QtHome "/opt/Qt5.13.1/5.13.1/gcc_64" CACHE PATH "qt home dir")
 
 list(APPEND CMAKE_PREFIX_PATH ${QtHome})
 
