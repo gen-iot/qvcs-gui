@@ -3,10 +3,11 @@
 #include <QStyle>
 #include <QApplication>
 #include <QScreen>
+#include <QDialog>
 
 namespace vcs::form::utils {
 
-    void window_center_screen(QWidget *window) {
+    void widget_center_screen(QWidget *window) {
         window->setGeometry(
                 QStyle::alignedRect(
                         Qt::LeftToRight,
@@ -15,6 +16,10 @@ namespace vcs::form::utils {
                         QGuiApplication::screens().first()->availableGeometry()
                 )
         );
+    }
+
+    void dialog_disable_help(QDialog *dialog) {
+        dialog->setWindowFlag(Qt::WindowContextHelpButtonHint, false);
     }
 
 }

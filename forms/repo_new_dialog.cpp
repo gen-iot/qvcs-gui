@@ -3,6 +3,7 @@
 #include <QDialogButtonBox>
 #include <QMessageBox>
 #include "repos_form.h"
+#include "utils.h"
 
 namespace vcs::form {
 
@@ -10,6 +11,7 @@ namespace vcs::form {
             QDialog(parent),
             vc_(new Ui::repo_new_view_controller) {
         vc_->setupUi(this);
+        utils::dialog_disable_help(this);
         ui_init();
     }
 

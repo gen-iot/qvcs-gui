@@ -10,6 +10,7 @@
 #include <QPushButton>
 #include <QMessageBox>
 #include <QDialogButtonBox>
+#include "utils.h"
 
 namespace vcs::form {
 
@@ -17,6 +18,7 @@ namespace vcs::form {
             QDialog(parent, wflag),
             vc_(new Ui::versions_new_view_controller) {
         vc_->setupUi(this);
+        utils::dialog_disable_help(this);
         ui_init();
     }
 

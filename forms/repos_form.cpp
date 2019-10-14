@@ -28,7 +28,7 @@ namespace vcs::form {
     }
 
     void repos_form::ui_init() {
-        utils::window_center_screen(this);
+        utils::widget_center_screen(this);
         this->setWindowTitle("Repo list");
         ui_setup_ctx_menu();
         ui_setup_toolbar();

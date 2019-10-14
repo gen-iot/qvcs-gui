@@ -102,7 +102,7 @@ namespace vcs::form {
     }
 
     void versions_form::ui_init() {
-        utils::window_center_screen(this);
+        utils::widget_center_screen(this);
         setWindowTitle(QString("Versions [%1]").arg(repo_name_));
         ui_setup_toolbar();
         ui_setup_ctx_menu();
