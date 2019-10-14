@@ -136,7 +136,7 @@ namespace vcs::form {
         QList<http::form_part> parts{
                 {
                         http::form_part::string,
-                        "name",
+                        "version",
                         ver_code.toUtf8()
                 },
                 {
