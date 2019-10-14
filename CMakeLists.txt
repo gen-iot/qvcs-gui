@@ -23,6 +23,10 @@ endif ()
 
 add_definitions(-D${CMAKE_BUILD_TYPE} -DkHttpBaseURL=${HTTP_BASEURL})
 
+if (MSVC)
+    set(CMAKE_CREATE_WIN32_EXE "/SUBSYSTEM:WINDOWS /ENTRY:\"mainCRTStartup\"")
+endif (MSVC)
+
 add_executable(cmake_qt
         # ui
         forms/repo_form.ui
