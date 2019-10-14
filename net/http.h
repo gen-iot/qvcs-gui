@@ -1,5 +1,4 @@
-#ifndef UTILS_H
-#define UTILS_H
+#pragma once
 
 #include <curl/curl.h>
 #include <QString>
@@ -98,5 +97,3 @@ namespace vcs::http {
 
 }
 
-
-#endif // UTILS_H

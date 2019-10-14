@@ -80,21 +80,21 @@ namespace vcs::form {
     bool versions_new_dialog::validate_inputs() {
         QString ver_name = vc_->txt_ver_name->text();
         if (ver_name.isEmpty()) {
-            QMessageBox::critical(this, "Error", "version name is required");
+            QMessageBox::critical(this, "Error", "name name is required");
             return false;
         }
         QString ver_file_loc = vc_->txt_file->text();
         if (ver_file_loc.isEmpty()) {
-            QMessageBox::critical(this, "Error", "version file is required");
+            QMessageBox::critical(this, "Error", "name file is required");
             return false;
         }
         if (!QFile::exists(ver_file_loc)) {
-            QMessageBox::critical(this, "Error", "version file not exist");
+            QMessageBox::critical(this, "Error", "name file not exist");
             return false;
         }
         QString ver_desc = vc_->txt_ver_desc->toPlainText();
         if (ver_desc.isEmpty()) {
-            QMessageBox::critical(this, "Error", "version desc is required");
+            QMessageBox::critical(this, "Error", "name desc is required");
             return false;
         }
         new_version_ready(ver_name, ver_file_loc, ver_desc, vc_->cb_head->isChecked());

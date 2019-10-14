@@ -1,6 +1,7 @@
 #include <QApplication>
 #include "forms/repos_form.h"
 #include "net/http.h"
+#include "net/api.h"
 
 using namespace vcs;
 

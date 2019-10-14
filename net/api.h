@@ -27,7 +27,7 @@ namespace vcs::api {
     int repo_update_desc(const QString &repo_desc);
 
     struct version {
-        QString version;
+        QString name;
         QString desc;
         QString url;
         QString md5;

@@ -9,6 +9,8 @@
 #include <QThread>
 #include <QMessageBox>
 #include <QAction>
+#include <QTableWidgetItem>
+#include <QVariant>
 #include "versions_form.h"
 #include "ui_versions_form.h"
 #include "net/api.h"
@@ -16,6 +18,9 @@
 #include "versions_new_dialog.h"
 #include "net/uploader.h"
 #include "lite_progress_dialog.h"
+#include <QClipboard>
+
+Q_DECLARE_METATYPE(vcs::api::version)
 
 namespace vcs::form {
 
@@ -41,7 +46,7 @@ namespace vcs::form {
         int err = api::version_list(this->repo_name_, &vers);
         if (err) {
 #ifdef Debug
-            qDebug() << "list version failed, err=" << err;
+            qDebug() << "list name failed, err=" << err;
 #endif
             return;
         }
@@ -49,7 +54,9 @@ namespace vcs::form {
         vc_->table_versions->setRowCount(vers.size());
         for (int i = 0; i < vers.size(); ++i) {
             const api::version &it = vers[i];
-            vc_->table_versions->setItem(i, 0, new QTableWidgetItem(it.version));
+            QTableWidgetItem *ver_name_item = new QTableWidgetItem(it.name);
+            ver_name_item->setData(Qt::UserRole, QVariant::fromValue(it));
+            vc_->table_versions->setItem(i, 0, ver_name_item);
             vc_->table_versions->setItem(i, 1, new QTableWidgetItem(it.desc));
             vc_->table_versions->setItem(i, 2, new QTableWidgetItem(it.is_latest ? "HEAD" : ""));
             vc_->table_versions->setItem(i, 3, new QTableWidgetItem(it.createAt.toString(api::kTimeFormat)));
@@ -72,12 +79,15 @@ namespace vcs::form {
         vc_->table_versions->setShowGrid(true);
         vc_->table_versions->setEditTriggers(QTableWidget::NoEditTriggers);
         vc_->table_versions->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
-
+        QObject::connect(vc_->table_versions, &QTableWidget::itemSelectionChanged,
+                         this, &versions_form::item_selection_changed);
         QObject::connect(vc_->table_versions, &QTableWidget::customContextMenuRequested,
                          [this](const QPoint &table_pos) {
                              QPoint cur_pos = QCursor::pos();
                              int row_idx = vc_->table_versions->rowAt(table_pos.y());
                              if (row_idx != -1) {
+                                 table_ctx_menu_->actions()[1]->setEnabled(
+                                         vc_->table_versions->selectionModel()->selectedRows().size() == 1);
                                  table_ctx_menu_->exec(cur_pos);
                              }
                          });
@@ -112,7 +122,8 @@ namespace vcs::form {
 
     void versions_form::show_create_version() {
         versions_new_dialog dialog(this);
-        QObject::connect(&dialog, &versions_new_dialog::new_version_ready, this, &versions_form::version_created);
+        QObject::connect(&dialog, &versions_new_dialog::new_version_ready,
+                         this, &versions_form::version_created);
         dialog.exec();
     }
 
@@ -125,7 +136,7 @@ namespace vcs::form {
         QList<http::form_part> parts{
                 {
                         http::form_part::string,
-                        "version",
+                        "name",
                         ver_code.toUtf8()
                 },
                 {
@@ -191,11 +202,13 @@ namespace vcs::form {
     }
 
     void versions_form::ui_setup_ctx_menu() {
-        QAction *act_ver_del = new QAction("Delete");
-        QObject::connect(act_ver_del, &QAction::triggered, this, &versions_form::delete_selected_versions);
         QAction *act_ver_set_head = new QAction("HEAD");
         QObject::connect(act_ver_set_head, &QAction::triggered, this, &versions_form::set_selected_head);
-        table_ctx_menu_->addActions({act_ver_set_head, act_ver_del});
+        QAction *act_ver_copy_url = new QAction("Copy URL");
+        QObject::connect(act_ver_copy_url, &QAction::triggered, this, &versions_form::copy_url_to_clipboard);
+        QAction *act_ver_del = new QAction("Delete");
+        QObject::connect(act_ver_del, &QAction::triggered, this, &versions_form::delete_selected_versions);
+        table_ctx_menu_->addActions({act_ver_set_head, act_ver_copy_url, act_ver_del});
     }
 
     void versions_form::delete_selected_versions() {
@@ -232,7 +245,7 @@ namespace vcs::form {
             QMessageBox::critical(this, "Error",
                                   del_failed_ls.size() == ver_will_delete.size()
                                   ? "all deletion failed!"
-                                  : QString("some version delete failed:\n%1").arg(del_failed_ls.join('\n')));
+                                  : QString("some name delete failed:\n%1").arg(del_failed_ls.join('\n')));
         }
         if (del_failed_ls.size() != ver_will_delete.size()) {
             load_versions();
@@ -242,7 +255,7 @@ namespace vcs::form {
     void versions_form::set_selected_head() {
         QModelIndexList selected_rows = vc_->table_versions->selectionModel()->selectedRows();
         if (selected_rows.size() != 1) {
-            QMessageBox::critical(this, "Error", "too many version selected");
+            QMessageBox::critical(this, "Error", "too many name selected");
             return;
         }
         int row_idx = selected_rows.first().row();
@@ -265,6 +278,38 @@ namespace vcs::form {
         QMessageBox::information(this, "Information",
                                  QString("set [%1] as HEAD success").arg(selected_ver_name));
         load_versions();
+    }
+
+    void versions_form::copy_url_to_clipboard() {
+        QModelIndexList selected_rows = vc_->table_versions->selectionModel()->selectedRows();
+        if (selected_rows.size() != 1) {
+            return;
+        }
+        int row = selected_rows.first().row();
+        QVariant data = vc_->table_versions->item(row, 0)->data(Qt::UserRole);
+        if (data.isNull()) {
+            return;
+        }
+        const api::version &ver = data.value<api::version>();
+        QClipboard *clip = QApplication::clipboard();
+        clip->setText(ver.url);
+        vc_->status_bar->showMessage(QString("copied! %1").arg(ver.url));
+    }
+
+    void versions_form::item_selection_changed() {
+        vc_->status_bar->clearMessage();
+        QModelIndexList selected_rows = vc_->table_versions->selectionModel()->selectedRows();
+        if (selected_rows.size() != 1) {
+            return;
+        }
+        int row = selected_rows.first().row();
+        QVariant data = vc_->table_versions->item(row, 0)->data(Qt::UserRole);
+        if (data.isNull()) {
+            return;
+        }
+        const api::version &ver = data.value<api::version>();
+        QString status_msg = QString("URL:%1 , MD5:%2").arg(ver.url).arg(ver.md5);
+        vc_->status_bar->showMessage(status_msg);
     }
 
 }

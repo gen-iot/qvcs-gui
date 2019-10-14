@@ -62,7 +62,7 @@ namespace vcs::api {
         std::transform(arr.cbegin(), arr.cend(), std::back_inserter(*versions), [](const QJsonValue &arr_it) {
             version it{};
             QJsonObject jsob = arr_it.toObject();
-            it.version = jsob.value("version").toString();
+            it.name = jsob.value("version").toString();
             it.desc = jsob.value("description").toString();
             it.url = jsob.value("url").toString();
             it.md5 = jsob.value("md5").toString();

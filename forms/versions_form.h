@@ -42,6 +42,10 @@ namespace vcs::form {
 
         void set_selected_head();
 
+        void copy_url_to_clipboard();
+
+        void item_selection_changed();
+
     private :
         Ui::versions_view_controller *vc_;
         QString repo_name_;
