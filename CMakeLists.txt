@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
+
+set(CMAKE_TOOLCHAIN_FILE C:/Users/Suzhen/GitHome/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake)
+
 project(qvcs-gui)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -6,6 +9,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
+
 
 option(CURL_VERBOSE "enable curl log" ON)
 set(HTTP_BASEURL "\"http://192.168.20.49:12136/api/v1\"" CACHE STRING "http base url for request")
@@ -24,7 +28,7 @@ endif ()
 add_definitions(-D${CMAKE_BUILD_TYPE} -DkHttpBaseURL=${HTTP_BASEURL})
 
 if (MSVC)
-    set(CMAKE_CREATE_WIN32_EXE "/SUBSYSTEM:WINDOWS /ENTRY:\"mainCRTStartup\"")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /ENTRY:\"mainCRTStartup\"")
 endif (MSVC)
 
 add_executable(qvcs-gui
