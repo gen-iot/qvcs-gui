@@ -1,6 +1,7 @@
 #include "http.h"
 #include <cstdio>
 #include <QDebug>
+#include <QFile>
 
 namespace vcs::http {
 
@@ -60,6 +61,38 @@ namespace vcs::http {
         return code;
     }
 
+    void mime_part_add_file_data(curl_mimepart *part, const QByteArray &file_loc) {
+        QFile *file = new QFile(QString::fromUtf8(file_loc));
+        file->open(QFile::ReadOnly);
+        // set file name
+        QByteArray file_name_ba = file->fileName().toUtf8();
+        curl_mime_filename(part, file_name_ba.data());
+        // file size
+        size_t fsize = file->size();
+#ifdef Debug
+        qDebug() << "file read total size" << fsize;
+#endif
+        curl_mime_data_cb(part,
+                          fsize,
+                          [](char *buffer,
+                             size_t size,
+                             size_t nitems,
+                             void *instream) -> size_t {
+                              QFile *file2 = static_cast<QFile *>(instream);
+                              size_t read_len = file2->read(buffer, size * nitems);
+#ifdef Debug
+                              qDebug() << "read result:" << read_len;
+#endif
+                              return read_len;
+                          },
+                          nullptr,
+                          [](void *ptr) {
+                              QFile *file = static_cast<QFile *>(ptr);
+                              delete file;
+                          },
+                          file);
+    }
+
     void curl_raii::set_mimes(const QList<form_part> &parts) noexcept {
         if (mimes_) {
             curl_mime_free(mimes_);
@@ -76,7 +109,8 @@ namespace vcs::http {
                 case form_part::file: {
                     part = curl_mime_addpart(mimes_);
                     // file part
-                    curl_mime_filedata(part, it.value.data());
+
+                    mime_part_add_file_data(part, it.value);
                 }
                     break;
                 case form_part::string: {
