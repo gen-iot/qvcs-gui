@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 
-set(VCPKG_TOOL_FILE C:/Users/Suzhen/GitHome/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake CACHE FILEPATH "vcpkg chan file")
+set(VCPKG_TOOL_FILE "" CACHE FILEPATH "vcpkg chan file")
 
 list(APPEND CMAKE_TOOLCHAIN_FILE ${VCPKG_TOOL_FILE})
 
