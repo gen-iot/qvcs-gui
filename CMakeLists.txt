@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.13)
 
-set(VCPKG_HOME C:/Users/Suzhen/GitHome/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake CACHE FILEPATH "vcpkg chan file")
+set(VCPKG_TOOL_FILE C:/Users/Suzhen/GitHome/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake CACHE FILEPATH "vcpkg chan file")
 
-list(APPEND CMAKE_TOOLCHAIN_FILE ${VCPKG_HOME})
+list(APPEND CMAKE_TOOLCHAIN_FILE ${VCPKG_TOOL_FILE})
 
 project(qvcs-gui)
 
@@ -15,9 +15,9 @@ set(CMAKE_AUTOUIC ON)
 
 option(CURL_VERBOSE "enable curl log" ON)
 set(HTTP_BASEURL "\"http://192.168.20.49:12136/api/v1\"" CACHE STRING "http base url for request")
-set(Qt5_Home "/opt/Qt5.13.1/5.13.1/gcc_64" CACHE PATH "qt home dir")
+set(Qt5_ROOT_DIR "/opt/Qt5.13.1/5.13.1/gcc_64" CACHE PATH "qt home dir")
 
-list(APPEND CMAKE_PREFIX_PATH ${Qt5_Home})
+list(APPEND CMAKE_PREFIX_PATH ${Qt5_ROOT_DIR})
 
 find_package(Qt5 COMPONENTS Gui Core Widgets REQUIRED)
 
