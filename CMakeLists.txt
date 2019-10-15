@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.13)
 
-set(VCPKG_TOOL_FILE "" CACHE FILEPATH "vcpkg chan file")
 
-list(APPEND CMAKE_TOOLCHAIN_FILE ${VCPKG_TOOL_FILE})
+if(DEFINED ENV{VCPKG_HOME} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+	set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_HOME}/scripts/buildsystems/vcpkg.cmake" CACHE FILEPATH "tool chain file")
+endif()
 
 project(qvcs-gui)
 
