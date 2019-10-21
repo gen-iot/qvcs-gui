@@ -39,14 +39,15 @@ namespace vcs::http {
 
         curl_raii &operator=(const curl_raii &) = delete;
 
-#ifdef MSVC
+#ifndef MSVC
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "google-explicit-constructor"
 #endif
         inline operator CURL *() noexcept {
             return handle_;
         }
-#ifdef MSVC
+
+#ifndef MSVC
 #pragma clang diagnostic pop
 #endif
 
