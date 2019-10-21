@@ -38,7 +38,7 @@ namespace vcs::net {
                        const QList<http::form_part> &mimes,
                        const QList<QByteArray> &headers) noexcept:
             QObject(parent),
-            handle_(),
+            handle_(60 * 2),
             url_(url) {
         handle_.add_header(headers);
         handle_.set_mimes(mimes);
