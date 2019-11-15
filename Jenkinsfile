@@ -8,6 +8,7 @@ pipeline{
 
     environment {
         GIT_SHOT_HASH_ID=env.GIT_COMMIT.take(8)
+		SEC_ENV_WIN32=credentials('SEC_ENV_WIN32')
     }
 
     stages{
@@ -38,7 +39,7 @@ pipeline{
         stage("Upload VCS"){
             steps{
                 bat "echo ${BUILD_TAG} %date% %time% > BUILD_INFO.txt"
-                bat "vcsup ${vcsUrl} -r qvcs_gui_win32 -v ${BUILD_NUMBER}_${GIT_SHOT_HASH_ID} -f ${params.BUILD_MODE}.7z -m BUILD_INFO.txt"
+                bat "cmd \\V \\C \" ${SEC_ENV_WIN32} && vcsup %vcsUrl% -r qvcs_gui_win32 -v ${BUILD_NUMBER}_${GIT_SHOT_HASH_ID} -f ${params.BUILD_MODE}.7z -m BUILD_INFO.txt\""
             }
         }
     }
