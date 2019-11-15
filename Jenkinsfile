@@ -27,13 +27,13 @@ pipeline{
         }
         stage("MSBuild"){
             steps{
-                bat "${MS_BUILD} build/ALL_BUILD.vcxproj /p:Configuration=${param.BUILD_MODE}"
+                bat "${MS_BUILD} build/ALL_BUILD.vcxproj /p:Configuration=${params.BUILD_MODE}"
             }
         }
         stage("Upload VCS"){
             steps{
                 echo "fake upload vcs"
-                //bat "vcsup -r qvcs_gui_win32 -v ${} -h ${param.BUILD_MODE}.zip"
+                //bat "vcsup -r qvcs_gui_win32 -v ${} -h ${params.BUILD_MODE}.zip"
             }
         }
     }
