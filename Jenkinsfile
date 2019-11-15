@@ -30,10 +30,15 @@ pipeline{
                 bat "${MS_BUILD} build/ALL_BUILD.vcxproj /p:Configuration=${params.BUILD_MODE}"
             }
         }
+        stage("Archive"){
+            steps{
+                bat "7z a ${params.BUILD_MODE}.7z ${params.BUILD_MODE}"
+            }
+        }
         stage("Upload VCS"){
             steps{
-                echo "fake upload vcs"
-                //bat "vcsup -r qvcs_gui_win32 -v ${} -h ${params.BUILD_MODE}.zip"
+                bat "echo ${BUILD_TAG} %date% %time% > BUILD_INFO.txt"
+                bat "vcsup ${vcsUrl} -r qvcs_gui_win32 -v ${BUILD_NUMBER}_${GIT_SHOT_HASH_ID} -f ${params.BUILD_MODE}.7z -m BUILD_INFO.txt"
             }
         }
     }
