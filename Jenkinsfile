@@ -34,13 +34,15 @@ pipeline{
 		stage("DepolyQt"){
 			steps{
 				dir("build"){
-					bat "windepolyqt.exe qvcs_gui.exe"
+					bat "${WINDEPOLYQT} build/${params.BUILD_MODE}/qvcs_gui.exe"
 				}
 			}
 		}
         stage("Archive"){
             steps{
-                bat "7z a ${params.BUILD_MODE}.7z build/${params.BUILD_MODE}"
+				dir("build"){
+					bat "7z a ${params.BUILD_MODE}.7z ${params.BUILD_MODE}"
+				}
             }
         }
         stage("Upload VCS"){
