@@ -12,6 +12,8 @@
 #include "versions_form.h"
 #include "utils.h"
 
+Q_DECLARE_METATYPE(vcs::api::repo)
+
 namespace vcs::form {
 
     repos_form::repos_form(QWidget *parent) :
@@ -67,6 +69,9 @@ namespace vcs::form {
         vc_->table_repos->setEditTriggers(QTableWidget::NoEditTriggers);
         vc_->table_repos->setContextMenuPolicy(Qt::CustomContextMenu);
         //
+        QObject::connect(vc_->table_repos, &QTableWidget::itemSelectionChanged,
+                         this, &repos_form::item_selection_changed);
+        //
         QObject::connect(vc_->table_repos,
                          &QTableWidget::customContextMenuRequested,
                          [this](const QPoint &table_pos) {
@@ -121,7 +126,9 @@ namespace vcs::form {
         vc_->table_repos->setRowCount(repos.size());
         for (int i = 0; i < repos.size(); ++i) {
             const api::repo &repo = repos[i];
-            vc_->table_repos->setItem(i, 0, new QTableWidgetItem(repo.name));
+            auto *repo_name_item = new QTableWidgetItem(repo.name);
+            repo_name_item->setData(Qt::UserRole, QVariant::fromValue(repo));
+            vc_->table_repos->setItem(i, 0, repo_name_item);
             vc_->table_repos->setItem(i, 1, new QTableWidgetItem(repo.desc));
             vc_->table_repos->setItem(i, 2, new QTableWidgetItem(repo.createAt.toString(api::kTimeFormat)));
         }
@@ -150,5 +157,19 @@ namespace vcs::form {
             this->load_repos();
         });
         box.exec();
+    }
+
+    void repos_form::item_selection_changed() {
+        QModelIndexList selected_rows = vc_->table_repos->selectionModel()->selectedRows();
+        if (selected_rows.size() != 1) {
+            return;
+        }
+        int row = selected_rows.first().row();
+        QVariant data = vc_->table_repos->item(row, 0)->data(Qt::UserRole);
+        if (data.isNull()) {
+            return;
+        }
+        const api::repo &r = data.value<api::repo>();
+        vc_->status_bar->showMessage(r.desc);
     }
 }

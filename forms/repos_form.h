@@ -32,6 +32,8 @@ namespace vcs::form {
 
         void del_selected_repo();
 
+        //
+        void item_selection_changed();
 
     private:
         Ui::repos_view_controller *vc_;
