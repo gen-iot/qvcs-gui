@@ -19,7 +19,8 @@ namespace vcs::form {
     Q_OBJECT
 
     public:
-        explicit versions_new_dialog(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+        explicit versions_new_dialog(QWidget *parent = nullptr,
+                                     Qt::WindowFlags f = Qt::WindowFlags());
 
         ~versions_new_dialog() override;
 

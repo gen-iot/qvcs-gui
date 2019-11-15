@@ -15,7 +15,6 @@ set(CMAKE_AUTOUIC ON)
 
 
 option(CURL_VERBOSE "enable curl log" ON)
-set(HTTP_BASEURL "\"http://192.168.20.49:12136/api/v1\"" CACHE STRING "http base url for request")
 set(Qt5_ROOT_DIR "/opt/Qt5.13.1/5.13.1/gcc_64" CACHE PATH "qt home dir")
 
 list(APPEND CMAKE_PREFIX_PATH ${Qt5_ROOT_DIR})
@@ -40,6 +39,7 @@ add_executable(qvcs-gui
         forms/repo_new_dialog.ui
         forms/versions_form.ui
         forms/versions_new_dialog.ui
+        forms/settings_dialog.ui
         # res
         resource.qrc
         # src
@@ -49,6 +49,7 @@ add_executable(qvcs-gui
         forms/versions_new_dialog.cpp
         forms/utils.cpp
         forms/lite_progress_dialog.cpp
+        forms/settings_dialog.cpp
         net/api.cpp
         net/http.cpp
         net/uploader.cpp

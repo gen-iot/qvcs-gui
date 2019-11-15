@@ -5,6 +5,8 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <algorithm>
+#include <mutex>
+#include <QSettings>
 
 namespace vcs::api {
 
@@ -16,10 +18,23 @@ namespace vcs::api {
     return kBadStatusCode;\
 }
 
+    void api_url_set(const QString &s) noexcept {
+        QSettings settings{};
+        settings.setValue("network/api_url", s);
+    }
+
+    QString api_url_get() noexcept {
+        QSettings settings{};
+        QString ret = settings.value("network/api_url").toString();
+        if (ret.isEmpty()) {
+            ret = "http://localhost";
+        }
+        return ret;
+    }
 
 
     int repo_list(QList<repo> *repos) {
-        const QString url = QString("%1/%2").arg(kBaseUrl).arg(u8"repositories");
+        const QString url = QString("%1/%2").arg(api_url_get()).arg(u8"repositories");
         http::status_code_t code{0};
         QByteArray output{};
         int err = http::get(url.toUtf8(), &code, &output);
@@ -47,7 +62,7 @@ namespace vcs::api {
     }
 
     int version_list(const QString &repo_name, QList<version> *versions) {
-        const QString url = QString("%1/versions/%2").arg(kBaseUrl).arg(repo_name);
+        const QString url = QString("%1/versions/%2").arg(api_url_get()).arg(repo_name);
         http::status_code_t code{0};
         QByteArray body{};
         int err = http::get(url.toUtf8(), &code, &body);
@@ -60,18 +75,18 @@ namespace vcs::api {
         //
         QJsonArray arr = doc.array();
         std::transform(arr.constBegin(), arr.constEnd(), std::back_inserter(*versions),
-			[](const QJsonValue &arr_it) {
-				version it{};
-				QJsonObject jsob = arr_it.toObject();
-				it.name = jsob.value("version").toString();
-				it.desc = jsob.value("description").toString();
-				it.url = jsob.value("url").toString();
-				it.md5 = jsob.value("md5").toString();
-				it.is_latest = jsob.value("isLatest").toBool();
-				int time_stamp = jsob.value("createdAt").toInt();
-				it.createAt = QDateTime::fromTime_t(uint(time_stamp));
-				return it;
-		});
+                       [](const QJsonValue &arr_it) {
+                           version it{};
+                           QJsonObject jsob = arr_it.toObject();
+                           it.name = jsob.value("version").toString();
+                           it.desc = jsob.value("description").toString();
+                           it.url = jsob.value("url").toString();
+                           it.md5 = jsob.value("md5").toString();
+                           it.is_latest = jsob.value("isLatest").toBool();
+                           int time_stamp = jsob.value("createdAt").toInt();
+                           it.createAt = QDateTime::fromTime_t(uint(time_stamp));
+                           return it;
+                       });
         return 0;
     }
 
@@ -81,7 +96,7 @@ namespace vcs::api {
         jsob.insert("description", QJsonValue(desc));
         QJsonDocument doc(jsob);
         QByteArray req_body = doc.toJson();
-        const QString url = QString("%1/repositories").arg(kBaseUrl);
+        const QString url = QString("%1/repositories").arg(api_url_get());
         http::status_code_t code{0};
         QByteArray result;
         int err = http::post(url.toUtf8(),
@@ -95,7 +110,7 @@ namespace vcs::api {
 
     int repo_drop(const QString &repo_name) {
         const QString url = QString("%1/repositories/%2")
-                .arg(kBaseUrl)
+                .arg(api_url_get())
                 .arg(repo_name);
         http::status_code_t code{0};
         int err = http::del(url.toUtf8(), &code);
@@ -109,7 +124,7 @@ namespace vcs::api {
 
     int version_delete(const QString &repo_name, const QString &ver_name) {
         const QString url = QString("%1/versions/%2/%3")
-                .arg(kBaseUrl)
+                .arg(api_url_get())
                 .arg(repo_name)
                 .arg(ver_name);
         http::status_code_t code{0};
@@ -120,7 +135,7 @@ namespace vcs::api {
 
     int version_head(const QString &repo_name, const QString &ver_name) {
         const QString url = QString("%1/versions/HEAD/%2/%3")
-                .arg(kBaseUrl)
+                .arg(api_url_get())
                 .arg(repo_name)
                 .arg(ver_name);
         http::status_code_t code{0};
@@ -128,4 +143,6 @@ namespace vcs::api {
         errOrStatus(err, code, 200);
         return 0;
     }
+
+
 }

@@ -31,9 +31,6 @@ namespace vcs::form {
             table_ctx_menu_(new QMenu(this)) {
         vc_->setupUi(this);
         //
-        setWindowModality(Qt::ApplicationModal);
-        setAttribute(Qt::WA_DeleteOnClose, true);
-        //
         ui_init();
     }
 
@@ -138,7 +135,7 @@ namespace vcs::form {
                                         const QString &ver_file_loc,
                                         const QString &ver_desc,
                                         bool isHead) {
-        QString upload_url = QString("%1/versions/%2").arg(api::kBaseUrl).arg(repo_name_);
+        QString upload_url = QString("%1/versions/%2").arg(api::api_url_get()).arg(repo_name_);
         QList<http::form_part> parts{
                 {
                         http::form_part::string,

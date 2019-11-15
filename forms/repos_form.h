@@ -1,5 +1,4 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QMainWindow>
 
@@ -30,6 +29,8 @@ namespace vcs::form {
 
         void load_repos();
 
+        void open_settings();
+
         void del_selected_repo();
 
         //
@@ -42,5 +43,3 @@ namespace vcs::form {
     };
 }
 
-
-#endif // MAINWINDOW_H

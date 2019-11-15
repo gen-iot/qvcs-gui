@@ -8,9 +8,13 @@
 namespace vcs::api {
 
     static constexpr char kTimeFormat[]{"yyyy-MM-dd HH:mm:ss"};
-    static constexpr char kBaseUrl[]{kHttpBaseURL};
     static constexpr int kBadStatusCode{-5000};
     static constexpr int kJSONParseErr{-5001};
+
+    void api_url_set(const QString &s) noexcept;
+
+    QString api_url_get() noexcept;
+
 
     struct repo {
         QString name;

@@ -10,6 +10,7 @@
 #include <QMenu>
 #include <QAbstractButton>
 #include "versions_form.h"
+#include "settings_dialog.h"
 #include "utils.h"
 
 Q_DECLARE_METATYPE(vcs::api::repo)
@@ -45,7 +46,10 @@ namespace vcs::form {
         QAction *act_reload = new QAction(QIcon(":/default/images/reload_32px.ico"), "Reload", this);
         QObject::connect(act_reload, &QAction::triggered, this, &repos_form::load_repos);
         //
-        vc_->tool_bar->addActions({act_new, act_reload});
+        QAction *act_settings = new QAction(QIcon(":/default/images/settings_32px.ico"), "Settings", this);
+        QObject::connect(act_settings, &QAction::triggered, this, &repos_form::open_settings);
+        //
+        vc_->tool_bar->addActions({act_new, act_reload, act_settings});
         //
         // disbale toolbar context menu
         vc_->tool_bar->setContextMenuPolicy(Qt::PreventContextMenu);
@@ -88,6 +92,8 @@ namespace vcs::form {
                              qDebug() << "row double-clicked:" << item->row() << "repo name=" << repo_name;
 #endif
                              versions_form *form = new versions_form(repo_name, this);
+                             form->setWindowModality(Qt::ApplicationModal);
+                             form->setAttribute(Qt::WA_DeleteOnClose, true);
                              form->show();
                          });
     }
@@ -134,6 +140,12 @@ namespace vcs::form {
         }
     }
 
+    void repos_form::open_settings() {
+        settings_dialog *dialog = new settings_dialog;
+        dialog->setAttribute(Qt::WA_DeleteOnClose, true);
+        dialog->exec();
+    }
+
     void repos_form::del_selected_repo() {
         QModelIndexList rows = vc_->table_repos->selectionModel()->selectedRows();
         QStringList del_repos;
@@ -172,4 +184,5 @@ namespace vcs::form {
         const api::repo &r = data.value<api::repo>();
         vc_->status_bar->showMessage(r.desc);
     }
+
 }

@@ -3,5 +3,6 @@
         <file>images/reload_32px.ico</file>
         <file>images/add_32px.ico</file>
         <file>images/upload_32px.ico</file>
+        <file>images/settings_32px.ico</file>
     </qresource>
 </RCC>
