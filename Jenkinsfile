@@ -3,7 +3,7 @@ pipeline{
 
     parameters {
         string(name: 'BUILD_MODE', defaultValue: 'Release', description: 'build type(Release or Debug)')
-        booleanParam(name: 'SKIP_UPLOAD', defaultValue: false, description: 'skip upload stage?')
+        booleanParam(name: 'VCS_SKIP_UPLOAD', defaultValue: false, description: "skip upload steps?")
     }
 
     environment {
