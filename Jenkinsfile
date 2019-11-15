@@ -31,6 +31,13 @@ pipeline{
                 bat "${MS_BUILD} build/ALL_BUILD.vcxproj /p:Configuration=${params.BUILD_MODE}"
             }
         }
+		stage("DepolyQt"){
+			steps{
+				dir("build"){
+					bat "windepolyqt.exe qvcs_gui.exe"
+				}
+			}
+		}
         stage("Archive"){
             steps{
                 bat "7z a ${params.BUILD_MODE}.7z build/${params.BUILD_MODE}"
@@ -39,7 +46,7 @@ pipeline{
         stage("Upload VCS"){
             steps{
                 bat "echo ${BUILD_TAG} %date% %time% > BUILD_INFO.txt"
-                bat "cmd \\V \\C \" ${SEC_ENV_WIN32} && vcsup %vcsUrl% -r qvcs_gui_win32 -v ${BUILD_NUMBER}_${GIT_SHOT_HASH_ID} -f ${params.BUILD_MODE}.7z -m BUILD_INFO.txt\""
+                bat "cmd /V /C \"${SEC_ENV_WIN32} && vcsup !vcsUrl! -r qvcs_gui_win32 -v ${BUILD_NUMBER}_${GIT_SHOT_HASH_ID} -f ${params.BUILD_MODE}.7z -m BUILD_INFO.txt\""
             }
         }
     }
