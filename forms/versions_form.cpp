@@ -114,10 +114,16 @@ namespace vcs::form {
     void versions_form::ui_init() {
         utils::widget_center_screen(this);
         setWindowTitle(QString("Versions [%1]").arg(repo_name_));
+        ui_setup_splitter();
         ui_setup_toolbar();
         ui_setup_ctx_menu();
         ui_setup_table();
         load_versions();
+    }
+
+    void versions_form::ui_setup_splitter() {
+        vc_->splitter->setStretchFactor(0, 7);
+        vc_->splitter->setStretchFactor(1, 3);
     }
 
     void versions_form::show_create_version() {
@@ -297,7 +303,6 @@ namespace vcs::form {
     }
 
     void versions_form::item_selection_changed() {
-        vc_->status_bar->clearMessage();
         QModelIndexList selected_rows = vc_->table_versions->selectionModel()->selectedRows();
         if (selected_rows.size() != 1) {
             return;
@@ -310,6 +315,7 @@ namespace vcs::form {
         const api::version &ver = data.value<api::version>();
         QString status_msg = QString("URL:%1 , MD5:%2").arg(ver.url).arg(ver.md5);
         vc_->status_bar->showMessage(status_msg);
+        vc_->txt_desc->setText(ver.desc);
     }
 
 }

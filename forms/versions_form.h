@@ -21,6 +21,8 @@ namespace vcs::form {
     private:
         void ui_init();
 
+        void ui_setup_splitter();
+
         void ui_setup_table();
 
         void ui_setup_toolbar();
