@@ -38,9 +38,7 @@ pipeline{
 		}
         stage("Archive"){
             steps{
-				dir("build"){
-					bat "7z a ${params.BUILD_MODE}.7z ${params.BUILD_MODE}"
-				}
+				bat "7z a ${params.BUILD_MODE}.7z %CD%/build/${params.BUILD_MODE}"
             }
         }
         stage("Upload VCS"){
