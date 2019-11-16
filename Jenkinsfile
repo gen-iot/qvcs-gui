@@ -33,7 +33,7 @@ pipeline{
         }
 		stage("DepolyQt"){
 			steps{
-				bat "${WINDEPOLYQT} build/${params.BUILD_MODE}/qvcs_gui.exe"
+				bat "${WINDEPOLYQT} build/${params.BUILD_MODE}/qvcs-gui.exe"
 			}
 		}
         stage("Archive"){
