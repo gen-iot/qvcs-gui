@@ -31,7 +31,8 @@ add_definitions(-D${CMAKE_BUILD_TYPE} -DkHttpBaseURL=${HTTP_BASEURL})
 
 if (MSVC)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /ENTRY:\"mainCRTStartup\"")
-endif (MSVC)
+    add_definitions(-DMSVC)
+endif ()
 
 add_executable(qvcs-gui
         # ui
